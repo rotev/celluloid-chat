@@ -1,0 +1,22 @@
+{
+  "name": "celluloid-chat",
+  "version": "0.0.0",
+  "homepage": "https://github.com/rotev/celluloid-chat",
+  "authors": [
+    "Rotem Harel <me@rotemharel.com>"
+  ],
+  "description": "A scalabale chat app based on Celluloid and Redis Pub/Sub.",
+  "main": "public/index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "2.1.3"
+  }
+}
