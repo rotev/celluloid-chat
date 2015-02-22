@@ -1,0 +1,39 @@
+body {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300;
+}
+
+#chat {
+  height: 300px;
+  overflow-y: auto;
+  text-align: left;
+  background: #fafafa;
+  padding: 20px;
+}
+
+  #chat > DIV.action-message {}
+
+    #chat > DIV.action-message strong {
+      width: 100px;
+      margin-right: 10px;
+      color: #aaa;
+      font-weight: normal;
+    }
+
+      #chat > DIV.action-message strong::before {
+        content: '<';
+        font-weight: normal;
+        color: #ccc;
+      }
+
+      #chat > DIV.action-message strong::after {
+        content: '>';
+        font-weight: normal;
+        color: #ccc;
+      }
+
+  #chat > DIV.action-status {}
+
+  #chat > DIV.action-status strong {
+
+  }

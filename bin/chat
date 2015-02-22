@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'pry'
+require 'dotenv'
+Dotenv.load
+
+require_relative '../chat'
+
+Chat::Server.supervise_as :reel
+sleep
