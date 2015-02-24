@@ -9,9 +9,30 @@ module Chat
       @publisher = Publisher.new
     end
 
-    def dispatch(message, client)
+    # assume all actions are either read or write of actions.
+    def dispatch(message, client, &block)
       debug "Dispatching #{message.inspect}"
 
+      if message['method'] == 'read'
+        dispatch_read(message, client, &block)
+      elsif message['method'] == 'create'
+        dispatch_create(message, client, &block)
+      end
+    end
+
+    def dispatch_read(message, client, &block)
+      collection = [
+        {id: 1, type: 'message', user: 'blah', message: 'hey there'},
+        {id: 2, type: 'message', user: 'blah', message: 'hey there'},
+        {id: 3, type: 'message', user: 'blah', message: 'hey there'},
+        {id: 4, type: 'leave', user: 'blah', message: 'joined'},
+        {id: 5, type: 'join', user: 'blah', message: 'left'}
+      ]
+
+      yield(collection, "ok") if block_given?
+    end
+
+    def dispatch_create(message, client, &block)
       type = message['data']['type']
       
       case type

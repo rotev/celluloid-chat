@@ -1,9 +1,11 @@
 define(function(require, exports, module) {
 
-  var Backbone    = require('backbone'),
-      Handlebars  = require('handlebars'),
-      template    = require('text!./chat.hbs'),
-      Action      = require('models/action');
+  var Backbone          = require('backbone'),
+      Handlebars        = require('handlebars'),
+      template          = require('text!./chat.hbs'),
+      Action            = require('models/action'),
+      ActionCollection  = require('models/action_collection'),
+      ActionComponent   = require('components/action');
 
   return (function() {
 
@@ -20,32 +22,36 @@ define(function(require, exports, module) {
         this.tempSendMessages();
 
         this.$el.addClass('chat');
+
+        this.actions = new ActionCollection();
+        this.actions.bind("change reset add remove", this.renderActions, this);
+        this.actions.fetch(
+          function success(collection, response, options) {
+            debugger
+          }
+        );
+        
       },
 
       render: function() {
         this.$el.html(Handlebars.compile(template)());
       },
 
+      renderActions: function() {
+        this.$el.html("");
+
+        var _this = this;
+
+        this.actions.each(function(action) {
+          var component = new ActionComponent({model: action});
+          component.render();
+          _this.$el.append(component.$el);
+        });
+      },
+
       handleAction: function(action) {
-        switch(action.type) {
-          case 'message':
-            html = '<div class="action action-message"><strong>' + action.user + '</strong> ' + action.message + '</div>';
-            break;
-
-          case 'leave':
-            html = '<div class="action action-status action-leave"><strong>' + action.user + '</strong> has left.</div>';
-            break;
-
-          case 'join':
-            html = '<div class="action action-status action-join"><strong>' + action.user + '</strong> joined.</div>';
-            break;
-        }
-
-        if (html) {
-          this.$el
-            .append(html)
-            .scrollTop(this.$el[0].scrollHeight);
-        }
+        var model = new Action(action);
+        this.actions.add(model);
       },
 
       tempSendMessages: function() {
@@ -58,7 +64,7 @@ define(function(require, exports, module) {
             message: (msgCounter++).toString()          
           });
           action.save();
-        }, 5000);
+        }, 3000);
       }
       
     });
