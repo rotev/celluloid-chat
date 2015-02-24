@@ -51,6 +51,7 @@ define(function(require, exports, module) {
           },
 
           function fail(response, status) {
+            promise.status = 0;
             if (_.isFunction(options.error)) options.error(promise);
             defer.reject(promise);
           });

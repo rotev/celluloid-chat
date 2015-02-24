@@ -24,7 +24,7 @@ define(function(require, exports, module) {
 
         this.actions = new ActionCollection();
         this.actions.bind("change reset add remove", this.renderActions, this);
-        this.actions.fetch();
+        this.actions.fetchThenSync();
 
         // focus on the compose element.
         var _this = this;
@@ -44,7 +44,7 @@ define(function(require, exports, module) {
       renderActions: function() {
         var actionsElem = this.$el.find('.chat-actions').html("");
 
-        var _this = this;
+        if (actionsElem.length == 0) return;
 
         this.actions.each(function(action) {
           var component = new ActionComponent({model: action});
@@ -80,7 +80,12 @@ define(function(require, exports, module) {
             user: _this.user,
             message: message
           });
-          action.save();
+          action.save().then(
+            function success() { },
+            function fail() {
+              _this.actions.add(action);
+            }
+          );
 
           input.val('');
         });

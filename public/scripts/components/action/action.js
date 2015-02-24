@@ -12,7 +12,7 @@ define(function(require, exports, module) {
 
       render: function() {
         var compiledTemplate = Handlebars.compile(template),
-            timestamp = moment().format("D/M/YY, H:mm:ss"),
+            timestamp = moment(this.model.get('created_at')).format("D/M/YY, H:mm:ss"),
             templateAttributes = _.extend({}, this.model.attributes, {timestamp: timestamp}),
             html = compiledTemplate(templateAttributes);
         this.$el.html(html);

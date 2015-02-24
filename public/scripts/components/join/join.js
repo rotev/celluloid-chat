@@ -28,14 +28,16 @@ define(function(require, exports, module) {
         form.on('submit', function(e) {
           e.preventDefault();
 
+          var user = input.val();
+
           var action = new Action({
             type: 'join',
-            user: input.val()
+            user: user
           });
 
           action.save().then(
             function success(response) {
-              _this.trigger('join');
+              _this.trigger('join', user);
             },
             function fail(response) {
               alert("Can't start chatting :\\");
