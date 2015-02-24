@@ -5,7 +5,7 @@ define(function(require, exports, module) {
       template          = require('text!./chat.hbs'),
       Action            = require('models/action'),
       ActionCollection  = require('models/action_collection'),
-      ActionComponent   = require('components/action');
+      ActionComponent   = require('components/action/action');
 
   return (function() {
 
@@ -25,11 +25,7 @@ define(function(require, exports, module) {
 
         this.actions = new ActionCollection();
         this.actions.bind("change reset add remove", this.renderActions, this);
-        this.actions.fetch(
-          function success(collection, response, options) {
-            debugger
-          }
-        );
+        this.actions.fetch();
         
       },
 

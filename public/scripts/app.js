@@ -2,8 +2,8 @@ define(function(require, exports, module) {
 
   var Backbone      = require('backbone'),
       EventBus      = require('event_bus'),
-      JoinComponent = require('components/join'),
-      ChatComponent = require('components/chat');
+      JoinComponent = require('components/join/join'),
+      ChatComponent = require('components/chat/chat');
 
   return (function() {
 
