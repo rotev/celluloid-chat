@@ -99,12 +99,8 @@ input {
         color: #ccc;
       }
 
-  .chat-actions .action-status {
+  .chat-actions .action-join {
     color: #13b96d;
-  }
-
-  .chat-actions .action-status strong {
-
   }
 
 .chat-compose {
