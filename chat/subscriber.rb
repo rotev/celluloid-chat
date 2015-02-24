@@ -6,30 +6,32 @@ module Chat
     include Celluloid::IO
     include Celluloid::Logger
 
-    attr_accessor :clients
-
     def initialize(channel = ENV['DEFAULT_CHANNEL'])
       @clients = []
       @channel = channel
       @redis = ::Redis.new(url: ENV['REDIS_URL'], driver: :celluloid)
 
-      async.subscribe
+      async.subscribe_to_channel
     end
 
-    def subscribe
-      @redis.subscribe @channel do |on|
-        on.subscribe do |channel, subscriptions|
-          info "Listening to channel '#{channel}'"
-        end
+    def add_client(client)
+      @clients << client
+    end
 
+    def remove_client(client)
+      @clients.delete(client)
+    end
+
+    private
+
+    def subscribe_to_channel
+      @redis.subscribe @channel do |on|
         on.message do |channel, message|
+          # when a message is received write it to all clients, and remove the reference
+          # to those who are no longer alive.
           @clients.select! do |client|
             client.alive? && client.write(message)
           end
-        end
-
-        on.unsubscribe do |channel, subscriptions|
-          info "Unsubscribed from channel '#{channel}'"
         end
       end
     end
