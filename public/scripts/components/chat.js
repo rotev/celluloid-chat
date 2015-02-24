@@ -45,7 +45,8 @@ define(function(require, exports, module) {
         this.actions.each(function(action) {
           var component = new ActionComponent({model: action});
           component.render();
-          _this.$el.append(component.$el);
+          _this.$el.append(component.$el)
+                   .scrollTop(_this.$el[0].scrollHeight);
         });
       },
 
