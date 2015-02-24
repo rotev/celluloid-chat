@@ -51,8 +51,8 @@ define(function(require, exports, module) {
           },
 
           function fail(response, status) {
-            if (_.isFunction(options.error)) options.error(response);
-            defer.reject(response);
+            if (_.isFunction(options.error)) options.error(promise);
+            defer.reject(promise);
           });
 
       return promise;

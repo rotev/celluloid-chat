@@ -5,7 +5,8 @@ define(function(require, exports, module) {
       template          = require('text!./chat.hbs'),
       Action            = require('models/action'),
       ActionCollection  = require('models/action_collection'),
-      ActionComponent   = require('components/action/action');
+      ActionComponent   = require('components/action/action'),
+      ConnectivityComponent = require('components/connectivity-indicator/connectivity-indicator');
 
   return (function() {
 
@@ -18,8 +19,6 @@ define(function(require, exports, module) {
         this.eventBus.on('model:created:actions', this.handleActionCreated);
 
         this.user = user;
-
-        //this.tempSendMessages();
 
         this.$el.addClass('chat');
 
@@ -34,6 +33,7 @@ define(function(require, exports, module) {
         });
 
         this.on('render', this.initCompose);
+        this.on('render', this.initConnectivity);
       },
 
       render: function() {
@@ -86,17 +86,11 @@ define(function(require, exports, module) {
         });
       },
 
-      tempSendMessages: function() {
-        var msgCounter = 1;
-
-        setInterval(function() {
-          var action = new Action({
-            type: 'message',
-            user: this.user,
-            message: (msgCounter++).toString()          
-          });
-          action.save();
-        }, 3000);
+      initConnectivity: function() {
+        var component = new ConnectivityComponent(this.eventBus);
+        component.render();
+        this.$el.find('.chat-connectivity').append(component.$el);
+        component.trigger('show');
       }
       
     });

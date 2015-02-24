@@ -5,7 +5,7 @@ requirejs.config({
     'json2': 'bower_components/json2/json2',
     'underscore': 'bower_components/underscore/underscore',
     'backbone.websockets': 'lib/backbone.websockets',
-    'backbone.dualStorage': 'bower_components/Backbone.dualStorage/backbone.dualStorage.amd',
+    'backbone.dualStorage': 'bower_components/Backbone.dualStorage/backbone.dualStorage',
     'io': 'io',
     'handlebars': 'bower_components/handlebars/handlebars',
     'text': 'bower_components/text/text',

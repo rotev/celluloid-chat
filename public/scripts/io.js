@@ -1,12 +1,21 @@
 define(function(require, exports, module) {
 
+  // Dependencies
   var $         = require('jquery'),
       _         = require('underscore'),
       lil       = require('lil-uuid'),
       EventBus  = require('event_bus');
 
+  // Local variables
   var IO,
-      instance = null;
+      instance  = null; // ensure a single instance
+
+  // Socket ready states
+  var CONNECTING = 0,
+      OPEN       = 1,
+      CLOSING    = 2,
+      CLOSED     = 3;
+
 
   IO = (function() {
     function IO() {
@@ -16,6 +25,7 @@ define(function(require, exports, module) {
 
       _.bindAll(this, 'onMessage', 'getSocket');
 
+      // ensure a single instance of the IO class.
       return instance;
     }
 
@@ -24,23 +34,47 @@ define(function(require, exports, module) {
     IO.prototype.responseListeners = {};
 
     IO.prototype.getSocket = function() {
+      // If a connection exists and its state is OPEN, return it.
+      // otherwise, return a rejected promise.
       if (this.socket) {
-        return $.Deferred().resolve(this.socket).promise();
+        if (this.socket.readyState == OPEN) {
+          return $.Deferred().resolve(this.socket).promise();
+        } else {
+          return $.Deferred().reject().promise();
+        }
       }
 
-      var deferred = $.Deferred(),
+      // Create a web socket connection to the server and return its promise.
+      return this.createSocket();
+    };
+
+    IO.prototype.createSocket = function() {
+      var defer = $.Deferred(),
           SocketKlass = "MozWebSocket" in window ? MozWebSocket : WebSocket,
-          ws = new SocketKlass('ws://' + window.location.host + '/sync'),
-          _this = this;
+          _this = this,
+          ws = null;
+
+      ws = new SocketKlass('ws://' + window.location.host + '/sync');
+
+      ws.onerror = function(event) {
+        _this.eventBus.trigger('offline');
+        defer.reject();
+      };
+
+      ws.onclose = function(event) {
+        _this.eventBus.trigger('offline');
+        defer.reject();
+      };
 
       ws.onopen = function(event) {
+        _this.eventBus.trigger('online');
         _this.socket = ws;
-        deferred.resolve(_this.socket);
+        defer.resolve(_this.socket);
       };
 
       ws.onmessage = this.onMessage;
 
-      return deferred.promise();
+      return defer.promise();
     };
 
     // Send payload to the server. Keep track of request_id and resolve when the server
@@ -58,17 +92,22 @@ define(function(require, exports, module) {
         data: data
       };
 
-      this.getSocket().then(function(socket) {
+      this.getSocket().then(
+        function success(socket) {
+          // wait for response.
+          _this.onceResponse(requestId, function(response) {
+            var resolveOrReject = response.status === "ok" ? defer.resolve : defer.reject;
+            resolveOrReject(response.data, response.status)
+          });
 
-        // wait for response.
-        _this.onceResponse(requestId, function(response) {
-          var resolveOrReject = response.status === "ok" ? defer.resolve : defer.reject;
-          resolveOrReject(response.data, response.status)
-        });
+          // send payload.
+          socket.send(JSON.stringify(payload));
+        },
 
-        // send payload.
-        socket.send(JSON.stringify(payload));
-      });
+        function fail() {
+          defer.reject();
+        }
+      );
       
       return defer.promise();
     };
@@ -109,6 +148,7 @@ define(function(require, exports, module) {
 
   })();
 
+  // always return <the> only instance of this IO class.
   return new IO;
 
 });
