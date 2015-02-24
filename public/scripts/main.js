@@ -9,7 +9,8 @@ requirejs.config({
     'io': 'io',
     'handlebars': 'bower_components/handlebars/handlebars',
     'text': 'bower_components/text/text',
-    'lil-uuid': 'bower_components/lil-uuid/uuid'
+    'lil-uuid': 'bower_components/lil-uuid/uuid',
+    'moment': 'bower_components/moment/moment'
   },
   shim: {
     underscore: {

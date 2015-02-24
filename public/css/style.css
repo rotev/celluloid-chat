@@ -30,12 +30,9 @@ input {
 }
 
 
-
 /*
   Join screen
  */
-
-
 .join {
   
 }
@@ -71,7 +68,15 @@ input {
 }
   .chat-actions .action {
     margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
   }
+
+    .chat-actions .action .time {
+      font-size: 70%;
+      color: #bbb;
+      margin-right: 20px;
+    }
 
   .chat-actions .action-message {}
 

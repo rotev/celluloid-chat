@@ -3,7 +3,8 @@ define(function(require, exports, module) {
   var Backbone    = require('backbone'),
       Handlebars  = require('handlebars'),
       template    = require('text!./action.hbs'),
-      Action      = require('models/action');
+      Action      = require('models/action'),
+      moment      = require('moment');
 
   return (function() {
 
@@ -11,7 +12,9 @@ define(function(require, exports, module) {
 
       render: function() {
         var compiledTemplate = Handlebars.compile(template),
-            html = compiledTemplate(this.model.attributes);
+            timestamp = moment().format("D/M/YY, H:mm:ss"),
+            templateAttributes = _.extend({}, this.model.attributes, {timestamp: timestamp}),
+            html = compiledTemplate(templateAttributes);
         this.$el.html(html);
       }
     });
