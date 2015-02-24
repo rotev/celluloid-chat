@@ -1,4 +1,5 @@
 require 'securerandom'
+require_relative 'storer'
 require_relative 'publisher'
 
 module Chat
@@ -6,6 +7,7 @@ module Chat
     include Celluloid::Logger
 
     def initialize
+      @storer = Storer.new
       @publisher = Publisher.new
     end
 
@@ -20,14 +22,9 @@ module Chat
       end
     end
 
-    def dispatch_read(message, client, &block)
-      collection = [
-        {id: 1, type: 'message', user: 'blah', message: 'hey there'},
-        {id: 2, type: 'message', user: 'blah', message: 'hey there'},
-        {id: 3, type: 'message', user: 'blah', message: 'hey there'},
-        {id: 4, type: 'leave', user: 'blah', message: 'joined'},
-        {id: 5, type: 'join', user: 'blah', message: 'left'}
-      ]
+    def dispatch_read(message, client, &block)      
+      # read last 10 actions.
+      collection = @storer.fetch_last(10).map{|a| JSON.parse(a)}
 
       yield(collection, "ok") if block_given?
     end
@@ -35,30 +32,32 @@ module Chat
     def dispatch_create(message, client, &block)
       type = message['data']['type']
       
-      case type
+      unless %(join message).include? type
+        error "Unknown action type received: '#{type}'"
+        return
+      end
 
-      when 'join'
+      if type == 'join'
         client.nickname = message['data']['user']
         message['data']['message'] = ' joined.'
-        publish_message(message, client)
-
-      when 'message'
-        publish_message(message, client)
-
-      else
-        info "Unknown action type received: '#{type}'"
       end
+
+      # add necessary message data
+      message['data']['id'] = SecureRandom::uuid()
+      message['data']['created_at'] = Time.now
+      message['data']['user'] = client.nickname
+
+      # store message in the database and publish it to all clients.
+      store(message)
+      publish(message)
 
       # For now, respond with successful status for all requests.
       yield("", "ok") if block_given?
     end
 
-    def publish_message(message, client)
-      message['data']['id'] = SecureRandom::uuid()
-      message['data']['created_at'] = Time.now.to_s
-      message['data']['user'] = client.nickname
-
-      publish(message)
+    def store(message)
+      score = message['data']['created_at'].to_i
+      @storer.async.store(score, JSON.generate(message['data']))
     end
 
     def publish(message)
