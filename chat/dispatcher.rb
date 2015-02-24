@@ -39,6 +39,7 @@ module Chat
 
       when 'join'
         client.nickname = message['data']['user']
+        message['data']['message'] = ' joined.'
         publish_message(message, client)
 
       when 'message'
