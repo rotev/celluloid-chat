@@ -17,12 +17,10 @@ define(function(require, exports, module) {
       CLOSED     = 3;
 
 
-  IO = (function() {
+  var IO = (function() {
     function IO() {
       if (!instance) instance = this;
-
       this.eventBus = new EventBus();
-
       _.bindAll(this, 'onMessage', 'getSocket');
 
       // ensure a single instance of the IO class.

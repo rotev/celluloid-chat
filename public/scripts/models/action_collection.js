@@ -1,7 +1,8 @@
 define(function(require, exports, module) {
 
   var Backbone  = require('backbone'),
-      Action    = require('models/action');
+      Action    = require('models/action'),
+      moment    = require('moment');
   
   return (function() {
 
@@ -11,6 +12,10 @@ define(function(require, exports, module) {
 
       initialize: function() {
         _.bindAll(this, "syncDirtyAndDestroyed", "removeOfflineActions");
+      },
+
+      comparator: function(model) {
+        return moment(model.get('created_at'));
       },
 
       fetchThenSync: function() {

@@ -29,6 +29,20 @@ input {
   box-shadow: 0 0 120px rgba(0,0,0,0.5);
 }
 
+@media (max-height: 440px) {
+  #container {
+    max-height: calc(100% - 40px);
+    top: auto;
+    margin-top: 20px; 
+  }
+}
+
+@media(max-width: 600px) {
+  #container {
+    width: calc(100% - 40px);
+  }
+}
+
 
 /*
   Join screen

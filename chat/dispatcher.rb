@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'time'
 require_relative 'storer'
 require_relative 'publisher'
 
@@ -43,25 +44,31 @@ module Chat
       end
 
       # add necessary message data
-      message['data']['id'] = SecureRandom::uuid()
-      message['data']['created_at'] = Time.now
-      message['data']['user'] = client.nickname
+      message['data']['id'] = "r#{SecureRandom::uuid()}"
 
       # store message in the database and publish it to all clients.
-      store(message)
+      score = parse_score(message)
+      store(score, message['data'])
       publish(message)
 
       # For now, respond with successful status for all requests.
-      yield("", "ok") if block_given?
+      # Send back the updated message data, including its new ID.
+      yield(message, "ok") if block_given?
     end
 
-    def store(message)
-      score = message['data']['created_at'].to_i
-      @storer.async.store(score, JSON.generate(message['data']))
+    def store(score, message_data)
+      @storer.async.store(score, JSON.generate(message_data))
     end
 
     def publish(message)
       @publisher.async.publish(JSON.generate(message))
+    end
+
+    def parse_score(message)
+      time = message['data']['created_at']
+      return time if time.is_a? Fixnum
+      time = Time.parse(time) unless time.is_a? Time
+      return time.to_i
     end
 
   end

@@ -10,7 +10,7 @@ define(function(require, exports, module) {
 
       initialize: function(eventBus) {
         this.eventBus = eventBus;
-        this.online = false; // temporary
+        this.online = true; // temporary
 
         var _this = this;
 

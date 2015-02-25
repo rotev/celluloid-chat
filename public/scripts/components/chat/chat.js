@@ -2,6 +2,7 @@ define(function(require, exports, module) {
 
   var Backbone          = require('backbone'),
       Handlebars        = require('handlebars'),
+      moment            = require('moment'),
       template          = require('text!./chat.hbs'),
       Action            = require('models/action'),
       ActionCollection  = require('models/action_collection'),
@@ -10,7 +11,7 @@ define(function(require, exports, module) {
 
   return (function() {
 
-    return Backbone.View.extend({
+    ChatView = Backbone.View.extend({
 
       initialize: function(eventBus, user) {
         _.bindAll(this, 'handleActionCreated');
@@ -22,15 +23,7 @@ define(function(require, exports, module) {
 
         this.$el.addClass('chat');
 
-        this.actions = new ActionCollection();
-        this.actions.bind("change reset add remove", this.renderActions, this);
-        this.actions.fetchThenSync();
-
-        // focus on the compose element.
-        var _this = this;
-        this.on('show', function() {
-          _this.$el.find('.chat-compose input').focus();
-        });
+        this.initActionsList();
 
         this.on('render', this.initCompose);
         this.on('render', this.initConnectivity);
@@ -59,6 +52,12 @@ define(function(require, exports, module) {
         this.actions.add(model);
       },
 
+      initActionsList: function() {
+        this.actions = new ActionCollection();
+        this.actions.bind("change reset add remove", this.renderActions, this);
+        this.actions.fetchThenSync();
+      },
+
       initCompose: function() {
         var _this   = this,
             form    = this.$el.find('form'),
@@ -74,21 +73,33 @@ define(function(require, exports, module) {
             return;
           }
 
-          // create action.
-          var action = new Action({
-            type: 'message',
-            user: _this.user,
-            message: message
-          });
-          action.save().then(
-            function success() { },
-            function fail() {
-              _this.actions.add(action);
-            }
-          );
+          _this.submitMessage(message);
 
           input.val('');
         });
+
+        // focus on the compose element.
+        this.on('show', function() {
+          _this.$el.find('.chat-compose input').focus();
+        });
+      },
+
+      submitMessage: function(message) {
+        var _this = this;
+
+        // create action.
+        var action = new Action({
+          type: 'message',
+          user: this.user,
+          message: message
+        });
+
+        action.save().then(
+          function success() { },
+          function fail() {
+            _this.actions.add(action);
+          }
+        );
       },
 
       initConnectivity: function() {
@@ -99,6 +110,8 @@ define(function(require, exports, module) {
       }
       
     });
+
+    return ChatView;
 
   })();
 
